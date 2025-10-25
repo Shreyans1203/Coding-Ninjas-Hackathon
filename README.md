@@ -5,7 +5,7 @@
 > - Kushagra Chaudhary  
 > - Shreyans Jain  
 > - Rudraksh Sinha  
-> - Paruvada Gunashekhar Rao  
+> - Paruvada Gunasekhar Rao  
 
 ---
 
