@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Campus Hub - Complaints</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div class="site-container">
+		<header class="topbar">
+			<div class="brand"><div class="logo">CH</div><div><div class="title">Campus Hub</div><div class="small">Complaints</div></div></div>
+			<nav class="nav">
+				<a href="index.html">Home</a>
+				<a href="events.html">Events</a>
+				<a href="clubs.html">Clubs</a>
+				<a href="attendence.html">Attendance</a>
+				<a href="complaints.html">Complaints</a>
+				<a href="feedback.html">Feedback</a>
+			</nav>
+		</header>
+
+		<main>
+			<section class="hero card">
+				<h1>Smart Complaint & Request System</h1>
+				<p>Log complaints (hostel, academics, facilities). This prototype stores requests locally and lets you track status.</p>
+			</section>
+
+			<div class="grid">
+				<div>
+					<section class="card">
+						<h2>Lodge a Complaint / Request</h2>
+						<form id="complaint-form">
+							<div class="row"><input id="complain-subject" type="text" placeholder="Subject (e.g., Water issue)" required></div>
+							<div class="row"><select id="complain-type"><option>Hostel</option><option>Academic</option><option>Facility</option><option>Other</option></select></div>
+							<div class="row"><textarea id="complain-desc" placeholder="Describe the issue" required></textarea></div>
+							<div class="row"><button class="btn" type="submit">Submit</button></div>
+						</form>
+					</section>
+
+					<section class="card" style="margin-top:12px">
+						<h2>Requests & Status</h2>
+						<div id="complaints-list" class="list"></div>
+					</section>
+				</div>
+
+				<aside>
+					<section class="card">
+						<h2>How it helps</h2>
+						<div class="small">Track raised complaints and update status. For production, add roles (admin, warden) and push updates to affected students.</div>
+					</section>
+				</aside>
+			</div>
+		</main>
+
+		<footer>Campus Hub — Complaints</footer>
+	</div>
+	<script src="scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+/* style.css (M: Modified) */
+
+/* --- Variables (Using the IDE-like colors) --- */
+:root {
+    --bg:#0b2b51; /* deep PPT-blue */
+    --card:#ffffff;
+    --muted:#dbe9ff;
+    --accent:#ff8c42; /* warm PPT accent */
+    --accent-2:#ffd480;
+    --text:#0b1f33;
+}
+
+/* --- Base Styling --- */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+    margin:0;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(180deg,var(--bg), #06304f 120%);
+    color:var(--card);
+    -webkit-font-smoothing:antialiased;
+}
+
+a {
+    color: var(--color-light-text);
+    text-decoration: none;
+}
+a:hover {
+    color: var(--color-accent-green);
+}
+
+/* --- Header & Status --- */
+.header {
+    grid-area: header;
+    background-color: #252526; /* Slightly lighter dark shade for contrast */
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.header h1 {
+    font-size: 1.2em;
+    color: var(--color-accent-orange);
+}
+
+/* --- Sidebar Navigation (File Structure) --- */
+.sidebar {
+    grid-area: sidebar;
+    background-color: #252526; 
+    padding: 10px 0;
+    border-right: 1px solid var(--color-border);
+}
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.sidebar li {
+    padding: 5px 15px;
+    font-size: 0.9em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.sidebar li a {
+    display: block;
+    flex-grow: 1;
+}
+
+/* Status Colors for Sidebar */
+.added { /* A: Added */
+    color: var(--color-accent-green);
+}
+.modified { /* M: Modified */
+    color: var(--color-accent-orange);
+}
+.current {
+    background-color: #3e3e42; /* Highlight current file */
+}
+
+/* --- Main Content --- */
+.content {
+    grid-area: content;
+    padding: 30px;
+}
+.content h2 {
+    border-bottom: 2px solid var(--color-accent-green);
+    padding-bottom: 5px;
+    color: var(--color-light-text);
+}
+
+.data-block {
+    background-color: #2d2d30; /* Secondary background block */
+    border: 1px solid var(--color-border);
+    padding: 15px;
+    margin-top: 20px;
+form .row{display:flex;gap:8px;margin-bottom:8px}
+input[type=text],input[type=date],textarea,select{width:100%;padding:10px;border-radius:8px;border:0;background:rgba(255,255,255,0.06);color:var(--card)}
+textarea{min-height:80px}
+.list{display:flex;flex-direction:column;gap:8px}
+.list-item{padding:10px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.02));display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.meta{font-size:12px;color:var(--muted)}
+
+.small{font-size:13px}
+
+footer{margin-top:22px;padding:12px;text-align:center;color:rgba(255,255,255,0.6)}
+
+@media (max-width:900px){.grid{grid-template-columns:1fr}.nav{display:none}}
+
+}
+
+.status-item {
+    padding: 5px 0;
+    font-size: 0.9em;
+}
+.status-item.online {
+    color: var(--color-accent-green);
+}
+.status-item.warning {
+    color: #ce9178; /* Muted red/orange for warnings */
+}
+
+/* --- Footer --- */
+.footer {
+    grid-area: footer;
+    background-color: #1e1e1e;
+    border-top: 1px solid var(--color-border);
+    padding: 10px 20px;
+    font-size: 0.75em;
+    color: #808080; /* Muted gray for footer text */
+}

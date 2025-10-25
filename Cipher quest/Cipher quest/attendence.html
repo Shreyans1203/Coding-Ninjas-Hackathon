@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Campus Hub - Attendance</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div class="site-container">
+		<header class="topbar">
+			<div class="brand"><div class="logo">CH</div><div><div class="title">Campus Hub</div><div class="small">Attendance</div></div></div>
+			<nav class="nav">
+				<a href="index.html">Home</a>
+				<a href="events.html">Events</a>
+				<a href="clubs.html">Clubs</a>
+				<a href="attendence.html">Attendance</a>
+				<a href="complaints.html">Complaints</a>
+				<a href="feedback.html">Feedback</a>
+			</nav>
+		</header>
+
+		<main>
+			<section class="hero card">
+				<h1>Attendance / Timetable Tracker</h1>
+				<p>Quickly mark and track attendance for sessions. This simple prototype keeps attendance per-date locally.</p>
+			</section>
+
+			<div class="grid">
+				<div>
+					<section class="card">
+						<h2>Mark Attendance</h2>
+						<form id="attendance-form">
+							<div class="row"><input id="att-name" type="text" placeholder="Student name or roll" required></div>
+							<div class="row"><input id="att-date" type="date" required></div>
+							<div class="row"><select id="att-status"><option>Present</option><option>Absent</option><option>Late</option></select></div>
+							<div class="row"><button class="btn" type="submit">Save</button></div>
+						</form>
+					</section>
+
+					<section class="card" style="margin-top:12px">
+						<h2>Records</h2>
+						<div id="attendance-list" class="list"></div>
+					</section>
+				</div>
+
+				<aside>
+					<section class="card">
+						<h2>Timetable (Example)</h2>
+						<div class="small">Mon 10:00 AM - Algorithms<br>Tue 12:00 PM - Web Dev<br>Wed 2:00 PM - DBMS</div>
+					</section>
+				</aside>
+			</div>
+		</main>
+
+		<footer>Campus Hub — Attendance</footer>
+	</div>
+	<script src="scripts.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Campus Hub - Clubs & Projects</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div class="site-container">
+		<header class="topbar">
+			<div class="brand"><div class="logo">CH</div><div><div class="title">Campus Hub</div><div class="small">Clubs & Projects</div></div></div>
+			<nav class="nav">
+				<a href="index.html">Home</a>
+				<a href="events.html">Events</a>
+				<a href="clubs.html">Clubs</a>
+				<a href="attendence.html">Attendance</a>
+				<a href="complaints.html">Complaints</a>
+				<a href="feedback.html">Feedback</a>
+			</nav>
+		</header>
+
+		<main>
+			<section class="hero card">
+				<h1>Club & Project Collaboration</h1>
+				<p>Create clubs, post projects, and allow members to join for collaboration.</p>
+			</section>
+
+			<div class="grid">
+				<div>
+					<section class="card">
+						<h2>Create a Club</h2>
+						<form id="club-form">
+							<div class="row"><input id="club-name" type="text" placeholder="Club name" required></div>
+							<div class="row"><input id="club-desc" type="text" placeholder="Short description"></div>
+							<div class="row"><button class="btn" type="submit">Create Club</button></div>
+						</form>
+					</section>
+
+					<section class="card" style="margin-top:12px">
+						<h2>Clubs</h2>
+						<div id="clubs-list" class="list"></div>
+					</section>
+				</div>
+
+				<aside>
+					<section class="card">
+						<h2>Starter Projects</h2>
+						<div class="small">Clubs can create projects and post requirements. Members join and collaborate.</div>
+					</section>
+				</aside>
+			</div>
+		</main>
+
+		<footer>Campus Hub — Clubs</footer>
+	</div>
+	<script src="scripts.js"></script>
+</body>
+</html>
+

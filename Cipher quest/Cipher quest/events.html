@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Campus Hub - Events</title>
+	<link rel="stylesheet" href="style.css">
+	<meta name="description" content="Create and view campus events">
+</head>
+<body>
+	<div class="site-container">
+		<header class="topbar">
+			<div class="brand"><div class="logo">CH</div><div><div class="title">Campus Hub</div><div class="small">Events</div></div></div>
+			<nav class="nav">
+				<a href="index.html">Home</a>
+				<a href="events.html">Events</a>
+				<a href="clubs.html">Clubs</a>
+				<a href="attendence.html">Attendance</a>
+				<a href="complaints.html">Complaints</a>
+				<a href="feedback.html">Feedback</a>
+			</nav>
+		</header>
+
+		<main>
+			<section class="hero card">
+				<h1>Events & Notice Board</h1>
+				<p>Post upcoming events, workshops, and notices. Events are stored locally for the prototype.</p>
+			</section>
+
+			<div class="grid">
+				<div>
+					<section class="card">
+						<h2>Create Event</h2>
+						<form id="event-form">
+							<div class="row"><input id="event-title" type="text" placeholder="Event title" required></div>
+							<div class="row"><input id="event-date" type="date" required></div>
+							<div class="row"><input id="event-organizer" type="text" placeholder="Organizer (club/person)"></div>
+							<div class="row"><textarea id="event-desc" placeholder="Short description"></textarea></div>
+							<div class="row"><button class="btn" type="submit">Add Event</button></div>
+						</form>
+					</section>
+
+					<section class="card" style="margin-top:12px">
+						<h2>Upcoming Events</h2>
+						<div id="events-list" class="list">
+							<!-- events render here -->
+						</div>
+					</section>
+				</div>
+
+				<aside>
+					<section class="card">
+						<h2>Tips</h2>
+						<div class="small">Use the event board to centralize announcements. For production, push to a server and add authentication and notifications.</div>
+					</section>
+				</aside>
+			</div>
+		</main>
+
+		<footer>Campus Hub — Events</footer>
+	</div>
+	<script src="scripts.js"></script>
+</body>
+</html>
+

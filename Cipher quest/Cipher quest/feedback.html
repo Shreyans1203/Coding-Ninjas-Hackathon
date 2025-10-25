@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Campus Hub - Feedback</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div class="site-container">
+		<header class="topbar">
+			<div class="brand"><div class="logo">CH</div><div><div class="title">Campus Hub</div><div class="small">Feedback</div></div></div>
+			<nav class="nav">
+				<a href="index.html">Home</a>
+				<a href="events.html">Events</a>
+				<a href="clubs.html">Clubs</a>
+				<a href="attendence.html">Attendance</a>
+				<a href="complaints.html">Complaints</a>
+				<a href="feedback.html">Feedback</a>
+			</nav>
+		</header>
+
+		<main>
+			<section class="hero card">
+				<h1>Student Feedback & Suggestions</h1>
+				<p>Collect feedback, suggestions and ideas from students. Data stored locally for prototype purposes.</p>
+			</section>
+
+			<div class="grid">
+				<div>
+					<section class="card">
+						<h2>Send Feedback</h2>
+						<form id="feedback-form">
+							<div class="row"><input id="fb-name" type="text" placeholder="Your name (optional)"></div>
+							<div class="row"><select id="fb-type"><option>Course</option><option>Facilities</option><option>Event</option><option>Other</option></select></div>
+							<div class="row"><textarea id="fb-text" placeholder="Write your feedback" required></textarea></div>
+							<div class="row"><button class="btn" type="submit">Send</button></div>
+						</form>
+					</section>
+
+					<section class="card" style="margin-top:12px">
+						<h2>Feedback</h2>
+						<div id="feedback-list" class="list"></div>
+					</section>
+				</div>
+
+				<aside>
+					<section class="card">
+						<h2>Why feedback matters</h2>
+						<div class="small">Encourage constructive suggestions. For production, add upvoting and anonymous mode.</div>
+					</section>
+				</aside>
+			</div>
+		</main>
+
+		<footer>Campus Hub — Feedback</footer>
+	</div>
+	<script src="scripts.js"></script>
+</body>
+</html>
