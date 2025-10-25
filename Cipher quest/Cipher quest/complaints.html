@@ -1,60 +1,856 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Campus Hub - Complaints</title>
-	<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniLife Nexus - Campus Management Platform</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the clean, professional, black/white "PPT" look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --primary-text: #1f2937; /* Dark Gray/Black */
+            --secondary-text: #4b5563; /* Medium Gray */
+            --background: #ffffff; /* White */
+            --border-color: #d1d5db; /* Light Gray */
+            --accent-color: #000000; /* Pure Black for accents */
+            --shadow-color: rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--primary-text);
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px var(--shadow-color);
+            transition: all 0.2s;
+        }
+
+        .nav-button {
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-button.active {
+            background-color: var(--accent-color);
+            color: var(--background);
+            border-color: var(--accent-color);
+        }
+
+        .data-table th, .data-table td {
+            border: 1px solid var(--border-color);
+        }
+
+        /* Ensure all focus states adhere to the black/white theme */
+        input:focus, textarea:focus, select:focus, button:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+    </style>
 </head>
-<body>
-	<div class="site-container">
-		<header class="topbar">
-			<div class="brand"><div class="logo">CH</div><div><div class="title">Campus Hub</div><div class="small">Complaints</div></div></div>
-			<nav class="nav">
-				<a href="index.html">Home</a>
-				<a href="events.html">Events</a>
-				<a href="clubs.html">Clubs</a>
-				<a href="attendence.html">Attendance</a>
-				<a href="complaints.html">Complaints</a>
-				<a href="feedback.html">Feedback</a>
-			</nav>
-		</header>
+<body class="min-h-screen">
+    
+    <!-- Custom Modal/Message Box (Replaces alert()) -->
+    <div id="custom-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full border border-gray-200">
+            <h4 id="modal-title" class="text-lg font-bold mb-2">Message</h4>
+            <p id="modal-message" class="text-sm text-gray-700 mb-4"></p>
+            <button onclick="closeModal()" class="w-full bg-black text-white font-medium py-2 rounded-lg hover:bg-gray-800 transition">OK</button>
+        </div>
+    </div>
 
-		<main>
-			<section class="hero card">
-				<h1>Smart Complaint & Request System</h1>
-				<p>Log complaints (hostel, academics, facilities). This prototype stores requests locally and lets you track status.</p>
-			</section>
+    <!-- Header & Navigation -->
+    <header class="shadow-sm border-b border-gray-200 sticky top-0 bg-white z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2 md:mb-0">
+                UniLife <span class="text-gray-500 font-light">Nexus</span>
+            </h1>
+            
+            <!-- View Selector -->
+            <div id="view-selector" class="flex space-x-2 p-1 rounded-lg border border-gray-200">
+                <button id="student-btn" class="nav-button active px-4 py-2 text-sm font-medium rounded-lg" onclick="switchView('student')">
+                    Student Portal
+                </button>
+                <button id="faculty-btn" class="nav-button px-4 py-2 text-sm font-medium rounded-lg" onclick="switchView('faculty')">
+                    Faculty/Management
+                </button>
+            </div>
+        </div>
+    </header>
 
-			<div class="grid">
-				<div>
-					<section class="card">
-						<h2>Lodge a Complaint / Request</h2>
-						<form id="complaint-form">
-							<div class="row"><input id="complain-subject" type="text" placeholder="Subject (e.g., Water issue)" required></div>
-							<div class="row"><select id="complain-type"><option>Hostel</option><option>Academic</option><option>Facility</option><option>Other</option></select></div>
-							<div class="row"><textarea id="complain-desc" placeholder="Describe the issue" required></textarea></div>
-							<div class="row"><button class="btn" type="submit">Submit</button></div>
-						</form>
-					</section>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Main Content Area - Renders based on selection -->
+        <div id="student-dashboard" class="view-content">
+            <h2 class="text-3xl font-semibold mb-6 border-b pb-2 border-gray-200">Student Dashboard</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Section 1: Notices and Events (Dynamically loaded) -->
+                <div class="lg:col-span-2 space-y-8">
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center">
+                            Centralized Notices & Upcoming Events
+                        </h3>
+                        <div id="events-notices-student-list" class="space-y-4">
+                            <!-- Events items loaded here -->
+                            <p class="text-xs text-gray-400">Loading upcoming events and notices...</p>
+                        </div>
+                        <button class="mt-4 text-sm font-medium text-black border border-black px-3 py-1.5 rounded-lg hover:bg-gray-100 transition">View All Announcements & Calendar</button>
+                    </section>
 
-					<section class="card" style="margin-top:12px">
-						<h2>Requests & Status</h2>
-						<div id="complaints-list" class="list"></div>
-					</section>
-				</div>
+                    <!-- Section 2: Club & Project Collaboration Space -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center">
+                            My Clubs & Projects
+                        </h3>
+                        <div class="space-y-4">
+                            <!-- Project Item 1 -->
+                            <div class="border p-4 rounded-lg flex justify-between items-center">
+                                <div>
+                                    <p class="font-semibold">Robotics Club: Autonomous Drone Project</p>
+                                    <p class="text-sm text-gray-600">Next meeting: Tuesday, 5 PM, Lab 302</p>
+                                </div>
+                                <span class="text-xs font-medium bg-gray-100 text-gray-800 px-3 py-1 rounded-full">Active</span>
+                            </div>
+                            <!-- Project Item 2 -->
+                            <div class="border p-4 rounded-lg flex justify-between items-center">
+                                <div>
+                                    <p class="font-semibold">Literary Society: Annual Magazine Editorial</p>
+                                    <p class="text-sm text-gray-600">Draft Submission Deadline: 11/15</p>
+                                </div>
+                                <span class="text-xs font-medium bg-gray-100 text-gray-800 px-3 py-1 rounded-full">Pending Tasks</span>
+                            </div>
+                        </div>
+                        <button class="mt-4 text-sm font-medium text-black border border-black px-3 py-1.5 rounded-lg hover:bg-gray-100 transition">Go to Collaboration Space</button>
+                    </section>
+                </div>
+                
+                <!-- Section 3: Student Tools (Complaints, Feedback, Attendance) -->
+                <div class="lg:col-span-1 space-y-8">
+                    
+                    <!-- Attendance/Timetable Tracker -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Timetable & Quick Attendance</h3>
+                        <div class="space-y-3">
+                            <div class="bg-gray-50 p-3 rounded-lg border">
+                                <p class="text-sm text-gray-500">Current Class (10:00 AM)</p>
+                                <p class="font-bold">Software Engineering (CS401)</p>
+                                <p class="text-sm text-gray-700">Room 205 | Dr. Sharma</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg border">
+                                <p class="text-sm text-gray-500">Overall Attendance</p>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-black h-2.5 rounded-full" style="width: 78%"></div>
+                                </div>
+                                <p class="text-sm mt-1 text-gray-700 font-medium">78% (Safe)</p>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Smart Complaint/Request System (Firestore Integrated) -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Lodge a Complaint / Request</h3>
+                        <form id="complaint-form" class="space-y-3">
+                            <div>
+                                <label for="complain-subject" class="block text-sm font-medium text-gray-700">Subject *</label>
+                                <input id="complain-subject" type="text" placeholder="Subject (e.g., Water issue in room)" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border">
+                            </div>
+                            <div>
+                                <label for="complain-type" class="block text-sm font-medium text-gray-700">Category</label>
+                                <select id="complain-type" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border">
+                                    <option>Hostel Maintenance</option>
+                                    <option>Academic Issue</option>
+                                    <option>Facilities/Campus</option>
+                                    <option>General Request</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="complain-desc" class="block text-sm font-medium text-gray-700">Describe the issue *</label>
+                                <textarea id="complain-desc" placeholder="Describe the issue in detail" required rows="4" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-black text-white font-medium py-2 rounded-lg hover:bg-gray-800 transition">
+                                <span id="complaint-submit-text">Submit Request</span>
+                            </button>
+                        </form>
 
-				<aside>
-					<section class="card">
-						<h2>How it helps</h2>
-						<div class="small">Track raised complaints and update status. For production, add roles (admin, warden) and push updates to affected students.</div>
-					</section>
-				</aside>
-			</div>
-		</main>
+                        <div class="mt-6 border-t pt-4">
+                            <h4 class="text-lg font-semibold mb-2">My Requests & Status</h4>
+                            <p class="text-sm text-gray-600 mb-3">Track the status of your submitted requests.</p>
+                            <div id="complaints-list-student" class="space-y-3">
+                                <!-- Complaint items loaded here from Firestore -->
+                                <p class="text-xs text-gray-400">Loading your requests...</p>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Feedback/Suggestion System (Real-time data) -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Send Feedback & Suggestions</h3>
+                        <form id="feedback-form" class="space-y-3">
+                            <div>
+                                <label for="fb-name" class="block text-sm font-medium text-gray-700">Your Name (Optional)</label>
+                                <input id="fb-name" type="text" placeholder="Anonymous" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border">
+                            </div>
+                            <div>
+                                <label for="fb-type" class="block text-sm font-medium text-gray-700">Category</label>
+                                <select id="fb-type" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border">
+                                    <option>Course/Academic</option>
+                                    <option>Facilities/Hostel</option>
+                                    <option>Event/Club</option>
+                                    <option>General Campus Suggestion</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="fb-text" class="block text-sm font-medium text-gray-700">Your Feedback *</label>
+                                <textarea id="fb-text" placeholder="Write your feedback/suggestion here..." required rows="4" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-black text-white font-medium py-2 rounded-lg hover:bg-gray-800 transition">
+                                <span id="feedback-submit-text">Post Suggestion</span>
+                            </button>
+                        </form>
 
-		<footer>Campus Hub — Complaints</footer>
-	</div>
-	<script src="scripts.js"></script>
+                        <div class="mt-6 border-t pt-4">
+                            <h4 class="text-lg font-semibold mb-2">Recent Suggestions</h4>
+                            <p class="text-sm text-gray-600 mb-3">See ideas submitted by the community (latest on top).</p>
+                            <div id="feedback-list" class="space-y-3">
+                                <!-- Feedback items loaded here -->
+                                <p class="text-xs text-gray-400">Loading suggestions...</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Faculty/Management Dashboard -->
+        <div id="faculty-dashboard" class="view-content hidden">
+            <h2 class="text-3xl font-semibold mb-6 border-b pb-2 border-gray-200">Management Portal</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Column 1: Review and Action -->
+                <div class="lg:col-span-2 space-y-8">
+                    
+                    <!-- Pending Complaints/Requests (DYNAMICALLY LOADED from Firestore) -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Pending Service Requests (Smart System)</h3>
+                        <div id="complaints-management-list" class="overflow-x-auto">
+                            <table class="data-table min-w-full divide-y divide-gray-200 text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">ID</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Subject</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Category</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Status</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="complaints-management-tbody" class="divide-y divide-gray-200">
+                                    <!-- Complaints loaded here -->
+                                    <tr><td colspan="5" class="px-3 py-2 text-center text-gray-500">Loading requests...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                    
+                    <!-- Feedback & Suggestions Review (Real-time data) -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Student Feedback Log (Review)</h3>
+                        <div id="management-feedback-list" class="space-y-4 max-h-96 overflow-y-auto">
+                            <!-- Real Feedback items loaded here -->
+                            <p class="text-xs text-gray-400">Loading feedback data...</p>
+                        </div>
+                    </section>
+                    
+                    <!-- Events Management List -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Campus Events Management</h3>
+                        <div id="events-management-list" class="space-y-4 max-h-96 overflow-y-auto">
+                            <!-- Events list loaded here for faculty to manage -->
+                            <p class="text-xs text-gray-400">Loading events data...</p>
+                        </div>
+                    </section>
+
+                </div>
+                
+                <!-- Column 2: Management Tools -->
+                <div class="lg:col-span-1 space-y-8">
+                    
+                    <!-- Create Notice/Event Form -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Create New Campus Event</h3>
+                        <form id="event-form-faculty" class="space-y-3">
+                            <div>
+                                <label for="event-title-faculty" class="block text-sm font-medium text-gray-700">Event Title *</label>
+                                <input id="event-title-faculty" type="text" placeholder="Event Title (e.g., Annual Tech Fest)" required class="mt-1 w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border">
+                            </div>
+                            <div>
+                                <label for="event-date-faculty" class="block text-sm font-medium text-gray-700">Date</label>
+                                <input id="event-date-faculty" type="date" required class="mt-1 w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border">
+                            </div>
+                            <div>
+                                <label for="event-organizer-faculty" class="block text-sm font-medium text-gray-700">Organizer</label>
+                                <input id="event-organizer-faculty" type="text" placeholder="Club or Department" class="mt-1 w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border">
+                            </div>
+                            <div>
+                                <label for="event-desc-faculty" class="block text-sm font-medium text-gray-700">Short Description</label>
+                                <textarea id="event-desc-faculty" rows="3" placeholder="Short description or location details..." class="mt-1 w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-black text-white font-medium py-2 rounded-lg hover:bg-gray-800 transition">
+                                <span id="event-submit-text">Publish Event/Notice</span>
+                            </button>
+                        </form>
+                    </section>
+                    
+                    <!-- Club Project Oversight -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Club Project Oversight</h3>
+                        <div class="space-y-3">
+                            <p class="text-sm font-medium">Active Clubs: <span class="font-bold">12</span></p>
+                            <p class="text-sm font-medium">Projects on Track: <span class="font-bold text-green-700">85%</span></p>
+                            <button class="w-full bg-gray-100 text-black font-medium py-2 rounded-lg border border-black hover:bg-gray-200 transition">View Project Status Reports</button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript for View Switching and Firestore Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase Variables (Mandatory Canvas Globals)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db = null;
+        let auth = null;
+        let userId = null;
+
+        // UI Elements
+        const studentBtn = document.getElementById('student-btn');
+        const facultyBtn = document.getElementById('faculty-btn');
+        const studentDash = document.getElementById('student-dashboard');
+        const facultyDash = document.getElementById('faculty-dashboard');
+        
+        // Feedback UI elements
+        const feedbackListStudent = document.getElementById('feedback-list');
+        const feedbackListManagement = document.getElementById('management-feedback-list');
+        const feedbackForm = document.getElementById('feedback-form');
+        const feedbackSubmitText = document.getElementById('feedback-submit-text');
+
+        // Event UI elements
+        const eventsNoticesStudentList = document.getElementById('events-notices-student-list');
+        const eventFormFaculty = document.getElementById('event-form-faculty');
+        const eventsManagementList = document.getElementById('events-management-list');
+        const eventSubmitText = document.getElementById('event-submit-text');
+        
+        // Complaint UI elements
+        const complaintForm = document.getElementById('complaint-form');
+        const complaintSubmitText = document.getElementById('complaint-submit-text');
+        const complaintsListStudent = document.getElementById('complaints-list-student');
+        const complaintsManagementTbody = document.getElementById('complaints-management-tbody');
+        
+        // --- Modal/Alert Implementation (Replaces forbidden alert()) ---
+        const customModal = document.getElementById('custom-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            customModal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            customModal.classList.add('hidden');
+        }
+
+        // --- View Switching Logic ---
+        function switchView(view) {
+            // Update button styles
+            studentBtn.classList.remove('active');
+            facultyBtn.classList.remove('active');
+            studentDash.classList.add('hidden');
+            facultyDash.classList.add('hidden');
+
+            if (view === 'student') {
+                studentBtn.classList.add('active');
+                studentDash.classList.remove('hidden');
+            } else if (view === 'faculty') {
+                facultyBtn.classList.add('active');
+                facultyDash.classList.remove('hidden');
+            }
+        }
+
+        // --- Firebase Initialization and Auth ---
+        async function initializeFirebase() {
+            try {
+                // setLogLevel('debug'); // Uncomment for debugging
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        // Start listening to real-time data after authentication
+                        setupFeedbackListener();
+                        setupEventListener();
+                        setupComplaintListener(); // NEW: Start complaint listener
+                    } else {
+                        // This case typically won't happen unless token fails, 
+                        // but we rely on anonymous sign-in as a fallback.
+                        console.error("Authentication failed. Using mock ID.");
+                        userId = crypto.randomUUID(); 
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showModal("Setup Error", "Failed to initialize campus data services. Please check console for details.");
+            }
+        }
+        
+        // ----------------------------------------------------------------------
+        // --- COMPLAINT MANAGEMENT (Firestore) ---
+        // ----------------------------------------------------------------------
+
+        // Status constants for complaints
+        const STATUS_OPEN = { text: 'Open', color: 'bg-red-500' };
+        const STATUS_IN_PROGRESS = { text: 'In Progress', color: 'bg-yellow-500' };
+        const STATUS_CLOSED = { text: 'Closed', color: 'bg-green-500' };
+
+        /**
+         * Renders the complaints list for the Student Dashboard (only their own complaints).
+         */
+        function renderComplaintsStudent(complaintsArray) {
+            complaintsListStudent.innerHTML = ''; // Clear previous content
+            // Filter down to only the current user's complaints
+            const userComplaints = complaintsArray.filter(c => c.submittedBy === userId);
+
+            if (userComplaints.length === 0) {
+                complaintsListStudent.innerHTML = `<p class="text-sm text-gray-500 p-4 border rounded-lg">You have not submitted any requests yet.</p>`;
+                return;
+            }
+
+            userComplaints.forEach(item => {
+                const date = item.timestamp ? new Date(item.timestamp.toDate()).toLocaleDateString() : 'N/A';
+                const status = item.status || STATUS_OPEN.text;
+                let statusDisplay = STATUS_OPEN;
+                if (status === STATUS_IN_PROGRESS.text) statusDisplay = STATUS_IN_PROGRESS;
+                if (status === STATUS_CLOSED.text) statusDisplay = STATUS_CLOSED;
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'p-3 border rounded-lg bg-gray-50 flex justify-between items-center';
+
+                itemDiv.innerHTML = `
+                    <div>
+                        <p class="text-sm font-medium">${item.subject}</p>
+                        <p class="text-xs text-gray-600">${item.type} | Submitted: ${date}</p>
+                    </div>
+                    <span class="text-xs font-medium text-white px-3 py-1 rounded-full ${statusDisplay.color} capitalize">
+                        ${status}
+                    </span>
+                `;
+                complaintsListStudent.appendChild(itemDiv);
+            });
+        }
+
+        /**
+         * Renders the full complaints list for the Management Dashboard.
+         */
+        function renderComplaintsManagement(complaintsArray) {
+            complaintsManagementTbody.innerHTML = ''; // Clear previous content
+
+            if (complaintsArray.length === 0) {
+                complaintsManagementTbody.innerHTML = `<tr><td colspan="5" class="px-3 py-2 text-center text-gray-500">No active service requests.</td></tr>`;
+                return;
+            }
+
+            complaintsArray.forEach(item => {
+                const status = item.status || STATUS_OPEN.text;
+                let statusClass = 'text-red-700 bg-red-100';
+                if (status === STATUS_IN_PROGRESS.text) statusClass = 'text-yellow-700 bg-yellow-100';
+                if (status === STATUS_CLOSED.text) statusClass = 'text-green-700 bg-green-100';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-3 py-2 whitespace-nowrap font-mono">${item.id.substring(0, 6)}</td>
+                    <td class="px-3 py-2">${item.subject}</td>
+                    <td class="px-3 py-2 whitespace-nowrap">${item.type}</td>
+                    <td class="px-3 py-2 whitespace-nowrap">
+                        <span class="text-xs font-medium px-2 py-0.5 rounded ${statusClass} capitalize">${status}</span>
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap">
+                        <button class="text-xs text-white bg-black px-2 py-1 rounded-md hover:bg-gray-800" 
+                            onclick="showModal('Manage Request', 'Request Details: ${item.description}')">Manage</button>
+                    </td>
+                `;
+                complaintsManagementTbody.appendChild(row);
+            });
+        }
+
+
+        function setupComplaintListener() {
+            if (!db) return;
+
+            // Public Collection Path for complaints
+            const complaintsRef = collection(db, 'artifacts', appId, 'public', 'data', 'complaints');
+            
+            // Query: Order by creation time descending (latest first)
+            const q = query(complaintsRef, orderBy('timestamp', 'desc'));
+
+            onSnapshot(q, (snapshot) => {
+                const complaintsData = [];
+                snapshot.forEach((doc) => {
+                    complaintsData.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Update both student and management views
+                renderComplaintsStudent(complaintsData);
+                renderComplaintsManagement(complaintsData);
+            }, (error) => {
+                console.error("Error setting up complaint listener:", error);
+                showModal("Data Error", "Could not load real-time complaint data.");
+            });
+        }
+
+        async function submitComplaint(e) {
+            e.preventDefault();
+            
+            if (!db) {
+                showModal("Service Unavailable", "Campus data service is not ready. Please try again.");
+                return;
+            }
+
+            const subjectInput = document.getElementById('complain-subject').value.trim();
+            const typeInput = document.getElementById('complain-type').value;
+            const descInput = document.getElementById('complain-desc').value.trim();
+
+            if (!subjectInput || !descInput) {
+                showModal("Input Required", "Please provide a subject and description for your request.");
+                return;
+            }
+
+            // Disable button during submission
+            complaintSubmitText.textContent = 'Submitting...';
+            const submitButton = complaintForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            try {
+                const complaintsRef = collection(db, 'artifacts', appId, 'public', 'data', 'complaints');
+                
+                await addDoc(complaintsRef, {
+                    subject: subjectInput,
+                    type: typeInput,
+                    description: descInput,
+                    status: STATUS_OPEN.text, // Default status
+                    timestamp: serverTimestamp(),
+                    submittedBy: userId || 'unknown'
+                });
+
+                showModal("Request Submitted", `Your request ("${subjectInput}") has been logged successfully! Tracking is available below.`);
+                complaintForm.reset();
+
+            } catch (error) {
+                console.error("Error submitting complaint:", error);
+                showModal("Submission Failed", "There was an error logging your request. Please try again later.");
+            } finally {
+                // Re-enable button
+                complaintSubmitText.textContent = 'Submit Request';
+                submitButton.disabled = false;
+            }
+        }
+
+
+        // ----------------------------------------------------------------------
+        // --- EVENT MANAGEMENT (Firestore) ---
+        // ----------------------------------------------------------------------
+
+        /**
+         * Renders the events list into the specified container.
+         * @param {Array<Object>} eventsArray - Array of event objects.
+         */
+        function renderEvents(eventsArray) {
+            // 1. Filter out past events for student view
+            const today = new Date().toISOString().slice(0, 10);
+            const upcomingEvents = eventsArray.filter(e => e.eventDate >= today);
+            
+            // 2. Sort chronologically by event date string (YYYY-MM-DD works)
+            upcomingEvents.sort((a, b) => a.eventDate.localeCompare(b.eventDate));
+            eventsArray.sort((a, b) => a.eventDate.localeCompare(b.eventDate)); // Full list sort
+
+            // --- Student View Rendering (Summary List) ---
+            eventsNoticesStudentList.innerHTML = '';
+            if (upcomingEvents.length === 0) {
+                eventsNoticesStudentList.innerHTML = `<p class="text-sm text-gray-500 p-4 border rounded-lg">No upcoming events or notices currently posted.</p>`;
+            } else {
+                upcomingEvents.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'border-b pb-3';
+                    itemDiv.innerHTML = `
+                        <p class="text-sm text-gray-500">${item.eventDate} | ${item.organizer || 'Campus Admin'}</p>
+                        <p class="font-medium text-lg">${item.title}</p>
+                        <p class="text-sm text-gray-700">${item.description}</p>
+                    `;
+                    eventsNoticesStudentList.appendChild(itemDiv);
+                });
+            }
+
+            // --- Management View Rendering (Detailed Table) ---
+            eventsManagementList.innerHTML = '';
+            if (eventsArray.length === 0) {
+                eventsManagementList.innerHTML = `<p class="text-sm text-gray-500 p-4 border rounded-lg">No events have been created yet.</p>`;
+            } else {
+                 eventsArray.forEach(item => {
+                    const statusClass = item.eventDate < today ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800';
+                    const statusText = item.eventDate < today ? 'Past' : 'Upcoming';
+                    
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'p-3 border rounded-lg bg-gray-50';
+                    itemDiv.innerHTML = `
+                        <div class="flex justify-between items-center mb-1">
+                            <p class="text-lg font-semibold">${item.title}</p>
+                            <span class="text-xs font-medium px-3 py-1 rounded-full ${statusClass}">${statusText}</span>
+                        </div>
+                        <p class="text-sm text-gray-600">Date: ${item.eventDate} | Organizer: ${item.organizer || 'N/A'}</p>
+                        <p class="text-sm text-gray-700 mt-1">${item.description}</p>
+                        <div class="mt-2 pt-2 border-t border-gray-200 flex justify-end space-x-2">
+                            <button class="text-xs text-black border border-gray-400 px-2 py-1 rounded-md hover:bg-gray-200" 
+                                onclick="showModal('Details', 'Event ID: ${item.id} - Created by ${item.submittedBy.substring(0, 8)}...')">Details</button>
+                            <button class="text-xs text-white bg-black px-2 py-1 rounded-md hover:bg-gray-800" 
+                                onclick="showModal('Action', 'Edit/Publish action for ${item.title}')">Edit/Delete</button>
+                        </div>
+                    `;
+                    eventsManagementList.appendChild(itemDiv);
+                });
+            }
+        }
+
+
+        function setupEventListener() {
+            if (!db) return;
+
+            // Public Collection Path for events
+            const eventsRef = collection(db, 'artifacts', appId, 'public', 'data', 'events');
+            
+            // Query: Order by creation timestamp descending for an efficient stream
+            const q = query(eventsRef, orderBy('timestamp', 'desc'));
+
+            // Real-time listener
+            onSnapshot(q, (snapshot) => {
+                const eventsData = [];
+                snapshot.forEach((doc) => {
+                    eventsData.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Render all events, letting the function handle filtering/sorting for each view
+                renderEvents(eventsData);
+            }, (error) => {
+                console.error("Error setting up event listener:", error);
+                showModal("Data Error", "Could not load real-time event data.");
+            });
+        }
+
+        async function submitEvent(e) {
+            e.preventDefault();
+            
+            if (!db) {
+                showModal("Service Unavailable", "Campus data service is not ready. Please try again.");
+                return;
+            }
+
+            const titleInput = document.getElementById('event-title-faculty').value.trim();
+            const dateInput = document.getElementById('event-date-faculty').value;
+            const organizerInput = document.getElementById('event-organizer-faculty').value.trim();
+            const descInput = document.getElementById('event-desc-faculty').value.trim();
+
+            if (!titleInput || !dateInput) {
+                showModal("Input Required", "Event title and date are required.");
+                return;
+            }
+            
+            // Disable button during submission
+            eventSubmitText.textContent = 'Publishing...';
+            const submitButton = eventFormFaculty.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            try {
+                const eventsRef = collection(db, 'artifacts', appId, 'public', 'data', 'events');
+                
+                await addDoc(eventsRef, {
+                    title: titleInput,
+                    eventDate: dateInput, // Stored as YYYY-MM-DD string
+                    organizer: organizerInput || 'Campus Administration',
+                    description: descInput || 'No details provided.',
+                    timestamp: serverTimestamp(), // Creation time
+                    submittedBy: userId || 'unknown'
+                });
+
+                showModal("Success!", `Event "${titleInput}" published successfully to the Notice Board.`);
+                eventFormFaculty.reset();
+
+            } catch (error) {
+                console.error("Error submitting event:", error);
+                showModal("Submission Failed", "There was an error publishing the event. Please try again later.");
+            } finally {
+                // Re-enable button
+                eventSubmitText.textContent = 'Publish Event/Notice';
+                submitButton.disabled = false;
+            }
+        }
+        
+        // ----------------------------------------------------------------------
+        // --- FEEDBACK MANAGEMENT (Firestore) ---
+        // ----------------------------------------------------------------------
+
+        /**
+         * Renders the feedback list into the specified container.
+         * @param {HTMLElement} container - The DOM element to append feedback items to.
+         * @param {Array<Object>} feedbackArray - Array of feedback objects.
+         * @param {boolean} forManagement - True if rendering for the faculty view.
+         */
+        function renderFeedback(container, feedbackArray, forManagement) {
+            container.innerHTML = ''; // Clear previous content
+
+            if (feedbackArray.length === 0) {
+                container.innerHTML = `<p class="text-sm text-gray-500 p-4 border rounded-lg">No suggestions submitted yet.</p>`;
+                return;
+            }
+
+            feedbackArray.forEach(item => {
+                const date = item.timestamp ? new Date(item.timestamp.toDate()).toLocaleDateString() : 'N/A';
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'p-3 border rounded-lg bg-gray-50';
+
+                let content = `
+                    <div class="flex justify-between items-start mb-1">
+                        <p class="text-xs font-semibold uppercase text-black">${item.type}</p>
+                        <p class="text-xs text-gray-500">${date}</p>
+                    </div>
+                    <p class="font-medium text-base">${item.text}</p>
+                    <p class="text-sm text-gray-700 mt-1">Submitted by: ${item.name || 'Anonymous'}</p>
+                `;
+
+                if (forManagement) {
+                    // Add management-specific actions/info
+                    content += `<div class="mt-2 pt-2 border-t border-gray-200 flex justify-between items-center">
+                        <span class="text-xs text-gray-500">From User ID: ${item.submittedBy.substring(0, 8)}...</span>
+                        <button class="text-xs text-white bg-black px-2 py-1 rounded-md hover:bg-gray-800" onclick="showModal('Action', 'Processing feedback ID: ${item.id}')">Process</button>
+                    </div>`;
+                }
+
+                itemDiv.innerHTML = content;
+                container.appendChild(itemDiv);
+            });
+        }
+
+
+        function setupFeedbackListener() {
+            if (!db) return;
+
+            // Public Collection Path for suggestions
+            const feedbackRef = collection(db, 'artifacts', appId, 'public', 'data', 'suggestions');
+            
+            // Query: Get all suggestions, ordered by creation time descending (latest first)
+            const q = query(feedbackRef, orderBy('timestamp', 'desc'));
+
+            // Real-time listener
+            onSnapshot(q, (snapshot) => {
+                const feedbackData = [];
+                snapshot.forEach((doc) => {
+                    feedbackData.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Update both student and management views
+                renderFeedback(feedbackListStudent, feedbackData, false);
+                renderFeedback(feedbackListManagement, feedbackData, true);
+            }, (error) => {
+                console.error("Error setting up feedback listener:", error);
+                showModal("Data Error", "Could not load real-time feedback data.");
+            });
+        }
+
+        async function submitFeedback(e) {
+            e.preventDefault();
+            
+            if (!db) {
+                showModal("Service Unavailable", "Campus data service is not ready. Please try again.");
+                return;
+            }
+
+            const nameInput = document.getElementById('fb-name').value.trim();
+            const typeInput = document.getElementById('fb-type').value;
+            const textInput = document.getElementById('fb-text').value.trim();
+
+            if (!textInput) {
+                showModal("Input Required", "Please write your suggestion before submitting.");
+                return;
+            }
+
+            // Disable button during submission
+            feedbackSubmitText.textContent = 'Submitting...';
+            const submitButton = feedbackForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            try {
+                const feedbackRef = collection(db, 'artifacts', appId, 'public', 'data', 'suggestions');
+                
+                await addDoc(feedbackRef, {
+                    name: nameInput || 'Anonymous',
+                    type: typeInput,
+                    text: textInput,
+                    timestamp: serverTimestamp(),
+                    submittedBy: userId || 'unknown'
+                });
+
+                showModal("Success!", "Thank you! Your suggestion has been posted and will be reviewed by management.");
+                feedbackForm.reset();
+
+            } catch (error) {
+                console.error("Error submitting feedback:", error);
+                showModal("Submission Failed", "There was an error posting your feedback. Please try again later.");
+            } finally {
+                // Re-enable button
+                feedbackSubmitText.textContent = 'Post Suggestion';
+                submitButton.disabled = false;
+            }
+        }
+        
+        // --- Event Listeners and Initial Load ---
+        
+        // Listener for the new complaint form
+        complaintForm.addEventListener('submit', submitComplaint);
+
+        // Use the new Firestore function for the main feedback form
+        feedbackForm.addEventListener('submit', submitFeedback);
+        
+        // Listener for the new faculty event creation form
+        eventFormFaculty.addEventListener('submit', submitEvent);
+        
+        // Expose modal for use in inline button clicks (like the management "Process" button)
+        window.showModal = showModal;
+        window.closeModal = closeModal;
+
+        // Initialize view and Firebase
+        window.onload = () => {
+            initializeFirebase();
+            switchView('student');
+        };
+    </script>
 </body>
 </html>

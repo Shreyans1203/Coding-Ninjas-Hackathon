@@ -1,60 +1,556 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Campus Hub - Feedback</title>
-	<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniLife Nexus - Campus Management Platform</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the clean, professional, black/white "PPT" look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --primary-text: #1f2937; /* Dark Gray/Black */
+            --secondary-text: #4b5563; /* Medium Gray */
+            --background: #ffffff; /* White */
+            --border-color: #d1d5db; /* Light Gray */
+            --accent-color: #000000; /* Pure Black for accents */
+            --shadow-color: rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--primary-text);
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px var(--shadow-color);
+            transition: all 0.2s;
+        }
+
+        .nav-button {
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-button.active {
+            background-color: var(--accent-color);
+            color: var(--background);
+            border-color: var(--accent-color);
+        }
+
+        .data-table th, .data-table td {
+            border: 1px solid var(--border-color);
+        }
+
+        /* Ensure all focus states adhere to the black/white theme */
+        input:focus, textarea:focus, select:focus, button:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+    </style>
 </head>
-<body>
-	<div class="site-container">
-		<header class="topbar">
-			<div class="brand"><div class="logo">CH</div><div><div class="title">Campus Hub</div><div class="small">Feedback</div></div></div>
-			<nav class="nav">
-				<a href="index.html">Home</a>
-				<a href="events.html">Events</a>
-				<a href="clubs.html">Clubs</a>
-				<a href="attendence.html">Attendance</a>
-				<a href="complaints.html">Complaints</a>
-				<a href="feedback.html">Feedback</a>
-			</nav>
-		</header>
+<body class="min-h-screen">
+    
+    <!-- Custom Modal/Message Box (Replaces alert()) -->
+    <div id="custom-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full border border-gray-200">
+            <h4 id="modal-title" class="text-lg font-bold mb-2">Message</h4>
+            <p id="modal-message" class="text-sm text-gray-700 mb-4"></p>
+            <button onclick="closeModal()" class="w-full bg-black text-white font-medium py-2 rounded-lg hover:bg-gray-800 transition">OK</button>
+        </div>
+    </div>
 
-		<main>
-			<section class="hero card">
-				<h1>Student Feedback & Suggestions</h1>
-				<p>Collect feedback, suggestions and ideas from students. Data stored locally for prototype purposes.</p>
-			</section>
+    <!-- Header & Navigation -->
+    <header class="shadow-sm border-b border-gray-200 sticky top-0 bg-white z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2 md:mb-0">
+                UniLife <span class="text-gray-500 font-light">Nexus</span>
+            </h1>
+            
+            <!-- View Selector -->
+            <div id="view-selector" class="flex space-x-2 p-1 rounded-lg border border-gray-200">
+                <button id="student-btn" class="nav-button active px-4 py-2 text-sm font-medium rounded-lg" onclick="switchView('student')">
+                    Student Portal
+                </button>
+                <button id="faculty-btn" class="nav-button px-4 py-2 text-sm font-medium rounded-lg" onclick="switchView('faculty')">
+                    Faculty/Management
+                </button>
+            </div>
+        </div>
+    </header>
 
-			<div class="grid">
-				<div>
-					<section class="card">
-						<h2>Send Feedback</h2>
-						<form id="feedback-form">
-							<div class="row"><input id="fb-name" type="text" placeholder="Your name (optional)"></div>
-							<div class="row"><select id="fb-type"><option>Course</option><option>Facilities</option><option>Event</option><option>Other</option></select></div>
-							<div class="row"><textarea id="fb-text" placeholder="Write your feedback" required></textarea></div>
-							<div class="row"><button class="btn" type="submit">Send</button></div>
-						</form>
-					</section>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Main Content Area - Renders based on selection -->
+        <div id="student-dashboard" class="view-content">
+            <h2 class="text-3xl font-semibold mb-6 border-b pb-2 border-gray-200">Student Dashboard</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Section 1: Notices and Events -->
+                <div class="lg:col-span-2 space-y-8">
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center">
+                            Centralized Notices & Events
+                        </h3>
+                        <div id="notices-list" class="space-y-4">
+                            <!-- Notice Item 1 -->
+                            <div class="border-b pb-3">
+                                <p class="text-sm text-gray-500">2025-10-24 | Event</p>
+                                <p class="font-medium text-lg">Annual Tech Fest Registration Open</p>
+                                <p class="text-sm text-gray-700">Deadline is 10/30. Visit the official tech club page for details.</p>
+                            </div>
+                            <!-- Notice Item 2 -->
+                            <div class="border-b pb-3">
+                                <p class="text-sm text-gray-500">2025-10-23 | Academic</p>
+                                <p class="font-medium text-lg">Revised Exam Timetable for B.Tech 3rd Year</p>
+                                <p class="text-sm text-gray-700">Check the attachment for new dates for Applied Mathematics.</p>
+                            </div>
+                            <!-- Notice Item 3 -->
+                            <div>
+                                <p class="text-sm text-gray-500">2025-10-22 | Administration</p>
+                                <p class="font-medium text-lg">Hostel Mess Menu Change (Week 43)</p>
+                                <p class="text-sm text-gray-700">New menu includes vegetarian and Jain options starting Monday.</p>
+                            </div>
+                        </div>
+                        <button class="mt-4 text-sm font-medium text-black border border-black px-3 py-1.5 rounded-lg hover:bg-gray-100 transition">View All Announcements & Calendar</button>
+                    </section>
 
-					<section class="card" style="margin-top:12px">
-						<h2>Feedback</h2>
-						<div id="feedback-list" class="list"></div>
-					</section>
-				</div>
+                    <!-- Section 2: Club & Project Collaboration Space -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center">
+                            My Clubs & Projects
+                        </h3>
+                        <div class="space-y-4">
+                            <!-- Project Item 1 -->
+                            <div class="border p-4 rounded-lg flex justify-between items-center">
+                                <div>
+                                    <p class="font-semibold">Robotics Club: Autonomous Drone Project</p>
+                                    <p class="text-sm text-gray-600">Next meeting: Tuesday, 5 PM, Lab 302</p>
+                                </div>
+                                <span class="text-xs font-medium bg-gray-100 text-gray-800 px-3 py-1 rounded-full">Active</span>
+                            </div>
+                            <!-- Project Item 2 -->
+                            <div class="border p-4 rounded-lg flex justify-between items-center">
+                                <div>
+                                    <p class="font-semibold">Literary Society: Annual Magazine Editorial</p>
+                                    <p class="text-sm text-gray-600">Draft Submission Deadline: 11/15</p>
+                                </div>
+                                <span class="text-xs font-medium bg-gray-100 text-gray-800 px-3 py-1 rounded-full">Pending Tasks</span>
+                            </div>
+                        </div>
+                        <button class="mt-4 text-sm font-medium text-black border border-black px-3 py-1.5 rounded-lg hover:bg-gray-100 transition">Go to Collaboration Space</button>
+                    </section>
+                </div>
+                
+                <!-- Section 3: Student Tools (Complaints, Feedback, Attendance) -->
+                <div class="lg:col-span-1 space-y-8">
+                    
+                    <!-- Attendance/Timetable Tracker -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Timetable & Quick Attendance</h3>
+                        <div class="space-y-3">
+                            <div class="bg-gray-50 p-3 rounded-lg border">
+                                <p class="text-sm text-gray-500">Current Class (10:00 AM)</p>
+                                <p class="font-bold">Software Engineering (CS401)</p>
+                                <p class="text-sm text-gray-700">Room 205 | Dr. Sharma</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg border">
+                                <p class="text-sm text-gray-500">Overall Attendance</p>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-black h-2.5 rounded-full" style="width: 78%"></div>
+                                </div>
+                                <p class="text-sm mt-1 text-gray-700 font-medium">78% (Safe)</p>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Smart Complaint/Request System -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Smart Complaint / Request</h3>
+                        <form id="complaint-form">
+                            <div class="mb-3">
+                                <label for="complaint-type" class="block text-sm font-medium text-gray-700">Category</label>
+                                <select id="complaint-type" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border">
+                                    <option>Hostel Maintenance</option>
+                                    <option>Academic Issue (Grades, Enrollment)</option>
+                                    <option>Library Services</option>
+                                    <option>General Campus Request</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="complaint-subject" class="block text-sm font-medium text-gray-700">Subject</label>
+                                <input type="text" id="complaint-subject" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border" placeholder="e.g., Leaky faucet in Room 404">
+                            </div>
+                            <button type="submit" class="w-full bg-black text-white font-medium py-2 rounded-lg hover:bg-gray-800 transition">Submit Request</button>
+                        </form>
+                    </section>
+                    
+                    <!-- Feedback/Suggestion System (UPDATED with full form and data loading) -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Send Feedback & Suggestions</h3>
+                        <form id="feedback-form" class="space-y-3">
+                            <div>
+                                <label for="fb-name" class="block text-sm font-medium text-gray-700">Your Name (Optional)</label>
+                                <input id="fb-name" type="text" placeholder="Anonymous" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border">
+                            </div>
+                            <div>
+                                <label for="fb-type" class="block text-sm font-medium text-gray-700">Category</label>
+                                <select id="fb-type" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border">
+                                    <option>Course/Academic</option>
+                                    <option>Facilities/Hostel</option>
+                                    <option>Event/Club</option>
+                                    <option>General Campus Suggestion</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="fb-text" class="block text-sm font-medium text-gray-700">Your Feedback *</label>
+                                <textarea id="fb-text" placeholder="Write your feedback/suggestion here..." required rows="4" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-black text-white font-medium py-2 rounded-lg hover:bg-gray-800 transition">
+                                <span id="feedback-submit-text">Post Suggestion</span>
+                            </button>
+                        </form>
 
-				<aside>
-					<section class="card">
-						<h2>Why feedback matters</h2>
-						<div class="small">Encourage constructive suggestions. For production, add upvoting and anonymous mode.</div>
-					</section>
-				</aside>
-			</div>
-		</main>
+                        <div class="mt-6 border-t pt-4">
+                            <h4 class="text-lg font-semibold mb-2">Recent Suggestions</h4>
+                            <p class="text-sm text-gray-600 mb-3">See ideas submitted by the community (latest on top).</p>
+                            <div id="feedback-list" class="space-y-3">
+                                <!-- Feedback items loaded here -->
+                                <p class="text-xs text-gray-400">Loading suggestions...</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
 
-		<footer>Campus Hub — Feedback</footer>
-	</div>
-	<script src="scripts.js"></script>
+        <!-- Faculty/Management Dashboard -->
+        <div id="faculty-dashboard" class="view-content hidden">
+            <h2 class="text-3xl font-semibold mb-6 border-b pb-2 border-gray-200">Management Portal</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Column 1: Review and Action -->
+                <div class="lg:col-span-2 space-y-8">
+                    
+                    <!-- Pending Complaints/Requests -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Pending Service Requests (Smart System)</h3>
+                        <table class="data-table min-w-full divide-y divide-gray-200 text-sm">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">ID</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Subject</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Category</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-3 py-2 whitespace-nowrap">R00123</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">AC not working in Lect Hall 1</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">Facilities</td>
+                                    <td class="px-3 py-2 whitespace-nowrap"><button class="text-xs text-white bg-black px-2 py-1 rounded-md hover:bg-gray-800">Assign</button></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-3 py-2 whitespace-nowrap">R00124</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">Grade Dispute: CS305</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">Academic</td>
+                                    <td class="px-3 py-2 whitespace-nowrap"><button class="text-xs text-white bg-black px-2 py-1 rounded-md hover:bg-gray-800">Review</button></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-3 py-2 whitespace-nowrap">R00125</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">Need extra lab hours</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">Resource</td>
+                                    <td class="px-3 py-2 whitespace-nowrap"><button class="text-xs text-white bg-black px-2 py-1 rounded-md hover:bg-gray-800">Review</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                    
+                    <!-- Feedback & Suggestions Review (Real-time data) -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Student Feedback Log (Review)</h3>
+                        <div id="management-feedback-list" class="space-y-4 max-h-96 overflow-y-auto">
+                            <!-- Real Feedback items loaded here -->
+                            <p class="text-xs text-gray-400">Loading feedback data...</p>
+                        </div>
+                    </section>
+
+                </div>
+                
+                <!-- Column 2: Management Tools -->
+                <div class="lg:col-span-1 space-y-8">
+                    
+                    <!-- Create Notice/Event -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Create New Notice / Event</h3>
+                        <form id="notice-creation-form" class="space-y-3">
+                            <input type="text" placeholder="Title (e.g., Exam Postponement)" class="w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border">
+                            <select class="w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border">
+                                <option>Notice (General)</option>
+                                <option>Event</option>
+                                <option>Academic</option>
+                            </select>
+                            <textarea rows="3" placeholder="Full announcement details..." class="w-full rounded-lg border-gray-300 shadow-sm p-2 text-sm border"></textarea>
+                            <button type="submit" class="w-full bg-black text-white font-medium py-2 rounded-lg hover:bg-gray-800 transition">Publish Notice</button>
+                        </form>
+                    </section>
+                    
+                    <!-- Club Project Oversight -->
+                    <section class="card p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4">Club Project Oversight</h3>
+                        <div class="space-y-3">
+                            <p class="text-sm font-medium">Active Clubs: <span class="font-bold">12</span></p>
+                            <p class="text-sm font-medium">Projects on Track: <span class="font-bold text-green-700">85%</span></p>
+                            <button class="w-full bg-gray-100 text-black font-medium py-2 rounded-lg border border-black hover:bg-gray-200 transition">View Project Status Reports</button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript for View Switching and Firestore Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase Variables (Mandatory Canvas Globals)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db = null;
+        let auth = null;
+        let userId = null;
+
+        // UI Elements
+        const studentBtn = document.getElementById('student-btn');
+        const facultyBtn = document.getElementById('faculty-btn');
+        const studentDash = document.getElementById('student-dashboard');
+        const facultyDash = document.getElementById('faculty-dashboard');
+        const feedbackListStudent = document.getElementById('feedback-list');
+        const feedbackListManagement = document.getElementById('management-feedback-list');
+        const feedbackForm = document.getElementById('feedback-form');
+        const feedbackSubmitText = document.getElementById('feedback-submit-text');
+        
+        // --- Modal/Alert Implementation (Replaces forbidden alert()) ---
+        const customModal = document.getElementById('custom-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            customModal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            customModal.classList.add('hidden');
+        }
+
+        // --- View Switching Logic ---
+        function switchView(view) {
+            // Update button styles
+            studentBtn.classList.remove('active');
+            facultyBtn.classList.remove('active');
+            studentDash.classList.add('hidden');
+            facultyDash.classList.add('hidden');
+
+            if (view === 'student') {
+                studentBtn.classList.add('active');
+                studentDash.classList.remove('hidden');
+            } else if (view === 'faculty') {
+                facultyBtn.classList.add('active');
+                facultyDash.classList.remove('hidden');
+            }
+        }
+
+        // --- Firebase Initialization and Auth ---
+        async function initializeFirebase() {
+            try {
+                // setLogLevel('debug'); // Uncomment for debugging
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        // Start listening to real-time data after authentication
+                        setupFeedbackListener();
+                    } else {
+                        // This case typically won't happen unless token fails, 
+                        // but we rely on anonymous sign-in as a fallback.
+                        console.error("Authentication failed. Using mock ID.");
+                        userId = crypto.randomUUID(); 
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showModal("Setup Error", "Failed to initialize campus data services. Please check console for details.");
+            }
+        }
+
+        // --- Feedback Management (Firestore) ---
+
+        /**
+         * Renders the feedback list into the specified container.
+         * @param {HTMLElement} container - The DOM element to append feedback items to.
+         * @param {Array<Object>} feedbackArray - Array of feedback objects.
+         * @param {boolean} forManagement - True if rendering for the faculty view.
+         */
+        function renderFeedback(container, feedbackArray, forManagement) {
+            container.innerHTML = ''; // Clear previous content
+
+            if (feedbackArray.length === 0) {
+                container.innerHTML = `<p class="text-sm text-gray-500 p-4 border rounded-lg">No suggestions submitted yet.</p>`;
+                return;
+            }
+
+            feedbackArray.forEach(item => {
+                const date = item.timestamp ? new Date(item.timestamp.toDate()).toLocaleDateString() : 'N/A';
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'p-3 border rounded-lg bg-gray-50';
+
+                let content = `
+                    <div class="flex justify-between items-start mb-1">
+                        <p class="text-xs font-semibold uppercase text-black">${item.type}</p>
+                        <p class="text-xs text-gray-500">${date}</p>
+                    </div>
+                    <p class="font-medium text-base">${item.text}</p>
+                    <p class="text-sm text-gray-700 mt-1">Submitted by: ${item.name || 'Anonymous'}</p>
+                `;
+
+                if (forManagement) {
+                    // Add management-specific actions/info
+                    content += `<div class="mt-2 pt-2 border-t border-gray-200 flex justify-between items-center">
+                        <span class="text-xs text-gray-500">From User ID: ${item.submittedBy.substring(0, 8)}...</span>
+                        <button class="text-xs text-white bg-black px-2 py-1 rounded-md hover:bg-gray-800" onclick="showModal('Action', 'Processing feedback ID: ${item.id}')">Process</button>
+                    </div>`;
+                }
+
+                itemDiv.innerHTML = content;
+                container.appendChild(itemDiv);
+            });
+        }
+
+
+        function setupFeedbackListener() {
+            if (!db) return;
+
+            // Public Collection Path for suggestions
+            const feedbackRef = collection(db, 'artifacts', appId, 'public', 'data', 'suggestions');
+            
+            // Query: Get all suggestions, ordered by creation time descending (latest first)
+            const q = query(feedbackRef, orderBy('timestamp', 'desc'));
+
+            // Real-time listener
+            onSnapshot(q, (snapshot) => {
+                const feedbackData = [];
+                snapshot.forEach((doc) => {
+                    feedbackData.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Update both student and management views
+                renderFeedback(feedbackListStudent, feedbackData, false);
+                renderFeedback(feedbackListManagement, feedbackData, true);
+            }, (error) => {
+                console.error("Error setting up feedback listener:", error);
+                showModal("Data Error", "Could not load real-time feedback data.");
+            });
+        }
+
+        async function submitFeedback(e) {
+            e.preventDefault();
+            
+            if (!db) {
+                showModal("Service Unavailable", "Campus data service is not ready. Please try again.");
+                return;
+            }
+
+            const nameInput = document.getElementById('fb-name').value.trim();
+            const typeInput = document.getElementById('fb-type').value;
+            const textInput = document.getElementById('fb-text').value.trim();
+
+            if (!textInput) {
+                showModal("Input Required", "Please write your suggestion before submitting.");
+                return;
+            }
+
+            // Disable button during submission
+            feedbackSubmitText.textContent = 'Submitting...';
+            const submitButton = feedbackForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            try {
+                const feedbackRef = collection(db, 'artifacts', appId, 'public', 'data', 'suggestions');
+                
+                await addDoc(feedbackRef, {
+                    name: nameInput || 'Anonymous',
+                    type: typeInput,
+                    text: textInput,
+                    timestamp: serverTimestamp(),
+                    submittedBy: userId || 'unknown'
+                });
+
+                showModal("Success!", "Thank you! Your suggestion has been posted and will be reviewed by management.");
+                feedbackForm.reset();
+
+            } catch (error) {
+                console.error("Error submitting feedback:", error);
+                showModal("Submission Failed", "There was an error posting your feedback. Please try again later.");
+            } finally {
+                // Re-enable button
+                feedbackSubmitText.textContent = 'Post Suggestion';
+                submitButton.disabled = false;
+            }
+        }
+
+        // --- Event Listeners and Initial Load ---
+        document.getElementById('complaint-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const type = document.getElementById('complaint-type').value;
+            const subject = document.getElementById('complaint-subject').value;
+            if (subject) {
+                console.log('Complaint Submitted:', { type, subject });
+                this.reset();
+                showModal('Request Submitted', `Complaint submitted successfully! Tracking ID: R00126 (Mock). Category: ${type}`);
+            } else {
+                showModal('Input Required', 'Please enter a subject for your request.');
+            }
+        });
+
+        // Use the new Firestore function for the main feedback form
+        feedbackForm.addEventListener('submit', submitFeedback);
+
+        document.getElementById('notice-creation-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Notice published (Mock)');
+            this.reset();
+            showModal('Published', 'New notice published successfully!');
+        });
+        
+        // Expose modal for use in inline button clicks (like the management "Process" button)
+        window.showModal = showModal;
+        window.closeModal = closeModal;
+
+        // Initialize view and Firebase
+        window.onload = () => {
+            initializeFirebase();
+            switchView('student');
+        };
+    </script>
 </body>
 </html>
